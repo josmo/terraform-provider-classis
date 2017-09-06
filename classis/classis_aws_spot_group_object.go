@@ -12,7 +12,7 @@ func resourceAwsSpotGroupObject() *schema.Resource {
 		Delete: resourceAwsSpotGroupObjectDelete,
 		Exists: resourceAwsSpotGroupObjectExists,
 
-		Schema: map[string]*schema.Schema{ },
+		Schema: map[string]*schema.Schema{},
 	}
 }
 
