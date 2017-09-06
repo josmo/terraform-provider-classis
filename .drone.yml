@@ -1,6 +1,6 @@
 workspace:
   base: /go
-  path: src/github.com/${DRONE_REPO}
+  path: src/github.com/classis/${DRONE_REPO_NAME}
 pipeline:
   test:
     image: golang:1.9
