@@ -1,12 +1,9 @@
 package classis
 
 import (
-
-	//"github.com/hashicorp/terraform/helper/hashcode"
-	//"github.com/hashicorp/terraform/helper/mutexkv"
+	"github.com/classis/terraform-provider-classis/classis/client"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/terraform"
-	//homedir "github.com/mitchellh/go-homedir"
 )
 
 // Provider returns a terraform.ResourceProvider.
@@ -17,29 +14,38 @@ func Provider() terraform.ResourceProvider {
 	// The actual provider
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
-			"username": {
+			"url": {
 				Type:        schema.TypeString,
 				Default:     "",
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("API_USER", nil),
-				Description: "username for classis",
+				DefaultFunc: schema.EnvDefaultFunc("CLASSIS_URL", nil),
+				Description: "url for classis",
+			},
+			"email": {
+				Type:        schema.TypeString,
+				Default:     "",
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("CLASSIS_EMAIL", nil),
+				Description: "email for classis",
 			},
 			"password": {
 				Type:        schema.TypeString,
 				Default:     "",
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("API_PASSWORD", nil),
+				DefaultFunc: schema.EnvDefaultFunc("CLASSIS_PASSWORD", nil),
 				Description: "password for classis",
 			},
 		},
-		ResourcesMap:  map[string]*schema.Resource{},
+		ResourcesMap: map[string]*schema.Resource{
+			"classis_aws_spot_group": resourceAwsSpotGroupObject(),
+		},
 		ConfigureFunc: configureProvider,
 	}
 }
 
 func configureProvider(d *schema.ResourceData) (interface{}, error) {
-	//user := d.Get("username").(string)
-	//token := d.Get("password").(string)
-	//return SimpleFakeApi.New(user, token) //TODO need to create the golang client for classis
-	return nil, nil
+	url := d.Get("url").(string)
+	email := d.Get("email").(string)
+	password := d.Get("password").(string)
+	return classis.NewClientWith(url, email, password)
 }
