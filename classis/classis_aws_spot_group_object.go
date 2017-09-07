@@ -94,6 +94,9 @@ func resourceAwsSpotGroupObjectCreate(d *schema.ResourceData, meta interface{}) 
 	spotGroup.Vpc = d.Get("vpc_id").(string)
 	if v, ok := d.GetOk("instance_types"); ok {
 		instances := make([]string, len(v.([]interface{})))
+		for _, element := range v.([]interface{}) {
+			instances = append(instances, element.(string))
+		}
 		spotGroup.TypesSelected = instances
 	}
 	var launchSpecification = classis.LaunchSpecification{}
@@ -103,12 +106,9 @@ func resourceAwsSpotGroupObjectCreate(d *schema.ResourceData, meta interface{}) 
 	launchSpecification.DefaultDeviceSize = d.Get("default_device_size").(string)
 	if v, ok := d.GetOk("security_groups"); ok {
 		var sendSecurityGroups = []classis.SecurityGroup{}
-		groups := make([]string, len(v.([]interface{})))
-		for _, element := range groups {
-			var securityGroup = classis.SecurityGroup{ element}
+		for _, element := range v.([]interface{}) {
+			var securityGroup = classis.SecurityGroup{ element.(string)}
 			sendSecurityGroups = append(sendSecurityGroups, securityGroup)
-			// index is the index where we are
-			// element is the element from someSlice for where we are
 		}
 		launchSpecification.SecurityGroups = sendSecurityGroups
 	}
