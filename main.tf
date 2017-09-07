@@ -13,5 +13,8 @@ resource "classis_aws_spot_group" "test" {
   subnet_id = "subnet-ae0eb0d8,subnet-7e3bfb26,subnet-722b4d16"
   key_name = "drone"
   iam_fleet_role = "arn:aws:iam::442163571627:role/aws-ec2-spot-fleet-role"
+  default_device_size ="30"
+  security_groups = ["sg-7e55e205"]
+  instance_types = ["m3.medium"]
 }
 

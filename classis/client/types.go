@@ -19,10 +19,17 @@ type SpotGroup struct {
 	Quantity            string              `json:"quantity,omitempty"`
 	Vpc                 string              `json:"vpc,omitempty"`
 	LaunchSpecification LaunchSpecification `json:"launchSpecification,omitempty"`
+	TypesSelected       []string            `json:"typesSelected,omitempty"`
 }
 
 type LaunchSpecification struct {
 	ImageId  string `json:"imageId,omitempty"`
 	SubnetId string `json:"subnetId,omitempty"`
 	KeyName  string `json:"keyName,omitempty"`
+	DefaultDeviceSize string `json:"defaultDeviceSize,omitempty"`
+	SecurityGroups []SecurityGroup `json:"securityGroups,omitempty"`
+}
+
+type SecurityGroup struct {
+	GroupId string `json:"groupId,omitempty"`
 }
