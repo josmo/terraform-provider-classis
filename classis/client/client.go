@@ -52,8 +52,8 @@ func NewClientWith(url string, username string, password string) (*Client, error
 
 func (c *Client) CreateSpotGroup(spotGroup SpotGroup) (string, error) {
 	var a [2]interface{}
-	u1, err := uuid.GenerateUUID()
-	a[0] = u1
+	generatedUID, err := uuid.GenerateUUID()
+	a[0] = generatedUID
 	a[1] = spotGroup
 	spotBytes, _ := json.Marshal(a)
 	spotReader := bytes.NewReader(spotBytes)
@@ -68,7 +68,7 @@ func (c *Client) CreateSpotGroup(spotGroup SpotGroup) (string, error) {
 		log.Error(err)
 	}
 
-	return u1, err
+	return generatedUID, err
 }
 
 func (c *Client) DeleteSpotGroup(groupId string) error {
