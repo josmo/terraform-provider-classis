@@ -19,6 +19,11 @@ func resourceAwsSpotGroupObject() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
+			"region": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
 			"iam_fleet_role": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -31,6 +36,11 @@ func resourceAwsSpotGroupObject() *schema.Resource {
 			},
 			"quantity": {
 				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
+			"active": {
+				Type:     schema.TypeBool,
 				Required: true,
 				ForceNew: true,
 			},
@@ -88,6 +98,7 @@ func resourceAwsSpotGroupObjectCreate(d *schema.ResourceData, meta interface{}) 
 	client := meta.(*classis.Client)
 	var spotGroup = classis.SpotGroup{}
 	spotGroup.Name = d.Get("group_name").(string)
+	spotGroup.Region = d.Get("region").(string)
 	spotGroup.DesiredQty = d.Get("desired_qty").(string)
 	spotGroup.Quantity = d.Get("quantity").(string)
 	spotGroup.IamFleetRole = d.Get("iam_fleet_role").(string)

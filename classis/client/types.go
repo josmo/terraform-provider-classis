@@ -14,6 +14,7 @@ type LoginResponse struct {
 type SpotGroup struct {
 	ID                  string              `json:"_id,omitempty"`
 	Name                string              `json:"name,omitempty"`
+	Region              string              `json:"region",omitempty`
 	IamFleetRole        string              `json:"iamFleetRole,omitempty"`
 	DesiredQty          string              `json:"desiredQty,omitempty"`
 	Quantity            string              `json:"quantity,omitempty"`
