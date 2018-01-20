@@ -6,9 +6,14 @@ type Login struct {
 }
 
 type LoginResponse struct {
-	ID           string `json:"_id,omitempty"`
+	ID           string `json:"id,omitempty"`
 	Token        string `json:"token,omitempty"`
 	TokenExpires string `json:"tokenExpires,omitempty"`
+}
+
+type APIError struct {
+	Error  int    `json:"error,omitempty"`
+	Reason string `json:"reason,omitempty"`
 }
 
 type SpotGroup struct {
@@ -24,11 +29,11 @@ type SpotGroup struct {
 }
 
 type LaunchSpecification struct {
-	ImageId  string `json:"imageId,omitempty"`
-	SubnetId string `json:"subnetId,omitempty"`
-	KeyName  string `json:"keyName,omitempty"`
-	DefaultDeviceSize string `json:"defaultDeviceSize,omitempty"`
-	SecurityGroups []SecurityGroup `json:"securityGroups,omitempty"`
+	ImageId           string          `json:"imageId,omitempty"`
+	SubnetId          string          `json:"subnetId,omitempty"`
+	KeyName           string          `json:"keyName,omitempty"`
+	DefaultDeviceSize string          `json:"defaultDeviceSize,omitempty"`
+	SecurityGroups    []SecurityGroup `json:"securityGroups,omitempty"`
 }
 
 type SecurityGroup struct {

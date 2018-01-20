@@ -1,99 +1,71 @@
 package classis
 
 import (
-	log "github.com/Sirupsen/logrus"
-	"net/http"
-
-	"bytes"
-	"encoding/json"
+	"errors"
 	"github.com/hashicorp/go-uuid"
-	"io"
-	"io/ioutil"
+	"gopkg.in/resty.v1"
+	"net/http"
 	"time"
 )
 
 type Client struct {
-	client *http.Client
-	base   string
-	token  string
+	client  *http.Client
+	request *resty.Request
+	base    string
+	token   string
 }
 
 func NewClientWith(url string, username string, password string) (*Client, error) {
+
+	loginResponse := LoginResponse{}
+	apiError := APIError{}
+	_, err := resty.R().
+		SetBody(Login{EmailAddress: username, Password: password}).
+		SetResult(&loginResponse).
+		SetError(&apiError).
+		Post(url + "/users/login")
+
+	if apiError.Error != 0 {
+		return nil, errors.New(apiError.Reason)
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	request := resty.R().
+		SetHeader("Authorization", "Bearer "+loginResponse.Token)
+
 	var netClient = &http.Client{
 		Timeout: time.Second * 10,
 	}
-	login := Login{
-		EmailAddress: username,
-		Password:     password,
-	}
-	log.Errorf("Wtf %s", login)
-	loginBytes, err := json.Marshal(login)
-	if err != nil {
-		return nil, err
-	}
-	loginReader := bytes.NewReader(loginBytes)
 
-	response, err := netClient.Post(url+"/users/login", "application/json", loginReader)
-	if err != nil {
-		return nil, err
-	}
-	defer response.Body.Close()
-	contents, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		return nil, err
-	}
-	loginResponse := LoginResponse{}
-	err = json.Unmarshal(contents, &loginResponse)
-	if err != nil {
-		return nil, err
-	}
-	return &Client{netClient, url, loginResponse.Token}, nil
+	return &Client{netClient, request, url, loginResponse.Token}, nil
 }
 
 func (c *Client) CreateSpotGroup(spotGroup SpotGroup) (string, error) {
-	var a [2]interface{}
-	generatedUID, err := uuid.GenerateUUID()
-	a[0] = generatedUID
-	a[1] = spotGroup
-	spotBytes, _ := json.Marshal(a)
-	spotReader := bytes.NewReader(spotBytes)
-	response, err := c.PostCustom(c.base+"/methods/sgUpsert", spotReader)
-
-	defer response.Body.Close()
-	//contents, err := ioutil.ReadAll(response.Body)
-	//spotGroupResponse := SpotGroup{}
-	//err = json.Unmarshal(contents, &spotGroupResponse)
-
+	generatedUID, _ := uuid.GenerateUUID()
+	apiError := APIError{}
+	_, err := c.request.
+		SetBody(spotGroup).
+		SetError(&apiError).
+		Post(c.base + "/spot-groups/" + generatedUID)
 	if err != nil {
-		log.Error(err)
+		return "", err
+	}
+	if apiError.Error != 0 {
+		return "", errors.New(apiError.Reason)
 	}
 
 	return generatedUID, err
 }
 
 func (c *Client) DeleteSpotGroup(groupId string) error {
-	var a [1]interface{}
-	a[0] = groupId
-	spotBytes, _ := json.Marshal(a)
-	spotReader := bytes.NewReader(spotBytes)
-	response, err := c.PostCustom(c.base+"/methods/spotGroup.remove", spotReader)
-
-	defer response.Body.Close()
-	//contents, err := ioutil.ReadAll(response.Body)
-	//spotGroupResponse := SpotGroup{}
-	//err = json.Unmarshal(contents, &spotGroupResponse)
-	if err != nil {
-		log.Error(err)
+	apiError := APIError{}
+	_, err := c.request.
+		SetError(&apiError).
+		Delete(c.base + "/spot-groups/" + groupId)
+	if apiError.Error != 0 {
+		return errors.New(apiError.Reason)
 	}
 	return err
-}
-
-func (c *Client) PostCustom(url string, body io.Reader) (*http.Response, error) {
-	req, err := http.NewRequest("POST", url, body)
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+c.token)
-	return c.client.Do(req)
 }
